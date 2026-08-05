@@ -1,0 +1,109 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Mini-SOC Event",
+  "description": "Event chuẩn mà MỌI nguồn telemetry phải phát ra, bất kể hệ điều hành hay ngôn ngữ cài đặt. Đây là hợp đồng giữa lớp 1 và lớp 2: nhờ nó, engine phát hiện không cần biết dữ liệu đến từ Windows, Linux, honeypot hay hộp thư email.",
+  "type": "object",
+  "required": ["timestamp", "host", "platform", "event_type", "data"],
+  "properties": {
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO-8601 UTC, ví dụ 2026-08-05T10:00:00Z"
+    },
+    "host": {
+      "type": "string",
+      "description": "Tên máy của endpoint được giám sát"
+    },
+    "platform": {
+      "type": "string",
+      "enum": ["windows", "linux", "macos"],
+      "description": "Họ hệ điều hành"
+    },
+    "event_type": {
+      "type": "string",
+      "enum": [
+        "process_create",
+        "process_exit",
+        "file_modify",
+        "file_create",
+        "network_connect",
+        "network_flow",
+        "registry_set",
+        "email_received",
+        "honeypot_hit"
+      ],
+      "description": "Loại hoạt động mà event mô tả"
+    },
+    "data": {
+      "type": "object",
+      "description": "Các trường tuỳ theo loại event.",
+      "properties": {
+        "pid": { "type": "integer" },
+        "ppid": { "type": "integer" },
+        "process_name": { "type": "string" },
+        "process_path": { "type": "string" },
+        "command_line": { "type": "string" },
+        "user": { "type": "string" },
+
+        "file_path": { "type": "string" },
+        "old_file_path": {
+          "type": "string",
+          "description": "Đường dẫn trước khi đổi tên. Có mặt nghĩa là event này là thao tác ĐỔI TÊN, không phải tạo file mới — lớp 2 dùng để không đếm một file thành hai khi ransomware đổi đuôi hàng loạt."
+        },
+        "file_size": { "type": "integer" },
+        "entropy": {
+          "type": "number",
+          "description": "Entropy Shannon 0-8 của nội dung file sau khi ghi. Lớp 2 dùng để phân biệt ghi file thường với ghi dữ liệu đã mã hoá."
+        },
+
+        "remote_ip": { "type": "string" },
+        "remote_port": { "type": "integer" },
+        "local_port": { "type": "integer" },
+        "protocol": { "type": "string" },
+
+        "flow_features": {
+          "type": "object",
+          "description": "Đặc trưng thống kê của luồng mạng, tương thích tập đặc trưng CIC-IDS2017 để mô hình ML của lớp 2 chấm điểm."
+        },
+
+        "registry_key": { "type": "string" },
+        "registry_value": { "type": "string" },
+
+        "email_from": { "type": "string" },
+        "email_subject": { "type": "string" },
+        "email_urls": { "type": "array", "items": { "type": "string" } },
+
+        "source_ip": { "type": "string" },
+        "service": { "type": "string" },
+        "credentials_tried": { "type": "string" }
+      }
+    }
+  },
+  "examples": [
+    {
+      "timestamp": "2026-08-05T10:00:00Z",
+      "host": "DESKTOP-ABC",
+      "platform": "windows",
+      "event_type": "process_create",
+      "data": {
+        "pid": 4321,
+        "ppid": 1000,
+        "process_name": "powershell.exe",
+        "process_path": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+        "command_line": "powershell.exe -nop -w hidden -enc SQBFAFgA...",
+        "user": "DESKTOP-ABC\\alice"
+      }
+    },
+    {
+      "timestamp": "2026-08-05T10:00:05Z",
+      "host": "DESKTOP-ABC",
+      "platform": "windows",
+      "event_type": "file_modify",
+      "data": {
+        "file_path": "C:\\Users\\alice\\Documents\\bao_cao.docx.locked",
+        "file_size": 24576,
+        "entropy": 7.98
+      }
+    }
+  ]
+}

@@ -1,0 +1,23 @@
+id: T1486-mass-file-encryption
+name: Nghi vấn ransomware (sửa đổi file hàng loạt)
+description: >
+  Ransomware để lại một dấu vết rất đặc trưng ở tầng file: rất nhiều file bị ghi
+  đè trong thời gian cực ngắn. Rule này bắt chính cụm đó. Lớp 2 (Tuần 2) sẽ bổ
+  sung phân tích entropy và tốc độ I/O để giảm cảnh báo giả.
+technique: T1486
+technique_name: Data Encrypted for Impact
+tactic: Impact
+severity: critical
+enabled: true
+event_type: file_modify
+detection:
+  type: threshold
+  window_seconds: 5
+  count: 12             # 12+ lần sửa file trong cây được giám sát, trong 5s
+  group_by: host
+  logic: any
+  conditions: []        # khớp mọi file_modify (phát hiện theo cụm hành vi)
+# HẠN CHẾ ĐÃ BIẾT: agent tham chiếu chỉ thấy đường dẫn file, không biết PID nào
+# gây ra thay đổi, nên buộc phải gom theo host. Agent mức kernel (minifilter trên
+# Windows, fanotify/eBPF trên Linux) sẽ gom được theo PID và giảm mạnh cảnh báo
+# giả — ví dụ khi người dùng chỉ đang giải nén một file zip lớn.

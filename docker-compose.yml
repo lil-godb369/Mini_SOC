@@ -1,0 +1,86 @@
+# Mini-SOC — toàn bộ nền tảng chạy bằng `docker compose up`.
+#
+# Vì sao chỉ 4 service (postgres, redis, api, worker)?
+#   - Bỏ Elasticsearch: cần ~2GB JVM heap, mâu thuẫn với mục tiêu "nhẹ cho SMB".
+#     PostgreSQL JSONB + index BRIN đủ cho quy mô vài triệu event.
+#   - Bỏ Kafka: Redis Streams có consumer group + ACK + persistence, tốn ~50MB.
+#   - `api` và `worker` DÙNG CHUNG một image, chỉ khác lệnh chạy. Tránh trôi lệch
+#     giữa hai bản code (worker cần chính module detection mà api dùng).
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes"]
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - redisdata:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  api:
+    build:
+      context: ./backend
+    restart: unless-stopped
+    env_file: .env
+    ports:
+      - "${API_PORT:-8000}:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    command: >
+      uvicorn app.main:app --host 0.0.0.0 --port 8000
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request;urllib.request.urlopen('http://127.0.0.1:8000/health')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+  worker:
+    build:
+      context: ./backend
+    restart: unless-stopped
+    env_file: .env
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      api:
+        condition: service_started
+    environment:
+      # Mô hình được huấn luyện ngoài Docker (ml/train.py) rồi mount vào đây.
+      # Chỉ đọc: worker không bao giờ được phép ghi đè artifact đã huấn luyện.
+      ML_MODEL_DIR: /srv/ml_artifacts
+    volumes:
+      - ./ml/artifacts:/srv/ml_artifacts:ro
+    command: >
+      python -m app.worker
+
+volumes:
+  pgdata:
+  redisdata:

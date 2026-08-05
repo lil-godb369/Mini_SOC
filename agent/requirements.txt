@@ -1,0 +1,5 @@
+# Agent chạy TRỰC TIẾP trên máy được giám sát (không trong Docker), nên phụ
+# thuộc được giữ ở mức tối thiểu và tương thích Python 3.9 trở lên.
+psutil==6.1.1
+watchdog==6.0.0
+requests==2.32.3

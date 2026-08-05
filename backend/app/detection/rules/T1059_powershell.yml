@@ -1,0 +1,31 @@
+id: T1059.001-suspicious-powershell
+name: PowerShell / trình thông dịch lệnh đáng ngờ
+description: >
+  Phát hiện dấu hiệu che giấu và "download cradle" trên dòng lệnh của
+  PowerShell — mẫu hành vi gần như luôn xuất hiện trong giai đoạn thực thi
+  payload đầu tiên.
+technique: T1059.001
+technique_name: PowerShell
+tactic: Execution
+severity: high
+enabled: true
+event_type: process_create
+detection:
+  type: single
+  logic: any
+  conditions:
+    - field: data.command_line
+      op: contains_any
+      values:
+        - "-enc"
+        - "-encodedcommand"
+        - "-nop"
+        - "-noprofile"
+        - "-w hidden"
+        - "-windowstyle hidden"
+        - "downloadstring"
+        - "downloadfile"
+        - "iex "
+        - "invoke-expression"
+        - "frombase64string"
+        - "bypass"

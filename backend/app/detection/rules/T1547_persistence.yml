@@ -1,0 +1,32 @@
+id: T1547.001-autostart-persistence
+name: Duy trì truy cập qua tự khởi động (Run key / scheduled task / cron)
+description: >
+  Kẻ tấn công cần sống sót qua lần khởi động lại. Rule bắt các cách phổ biến
+  nhất và rẻ nhất: ghi Run key, tạo scheduled task (Windows), cron hoặc file
+  profile của shell (Linux).
+technique: T1547.001
+technique_name: Registry Run Keys / Startup Folder
+tactic: Persistence
+severity: high
+enabled: true
+event_type: process_create
+detection:
+  type: single
+  logic: any
+  conditions:
+    # Windows: ghi Run key qua reg.exe, hoặc tạo scheduled task.
+    - field: data.command_line
+      op: regex
+      values:
+        - "reg(\\.exe)?\\s+add.+\\\\(CurrentVersion\\\\Run|RunOnce)"
+        - "schtasks(\\.exe)?\\s+/create"
+        - "New-ScheduledTask|Register-ScheduledTask"
+    # Linux: duy trì qua cron hoặc file profile.
+    - field: data.command_line
+      op: contains_any
+      values:
+        - "crontab -"
+        - "/etc/cron"
+        - ".bashrc"
+        - ".bash_profile"
+        - "systemctl enable"

@@ -1,0 +1,34 @@
+id: T1003-credential-dumping
+name: Dấu hiệu trích xuất thông tin đăng nhập
+description: >
+  Bắt các công cụ và lệnh nhắm vào bộ nhớ LSASS (Windows) hoặc file shadow
+  (Linux). Đây là bước bản lề: có credential thì kẻ tấn công chuyển từ một máy
+  sang toàn mạng.
+technique: T1003
+technique_name: OS Credential Dumping
+tactic: Credential Access
+severity: critical
+enabled: true
+event_type: process_create
+detection:
+  type: single
+  logic: any
+  conditions:
+    # Windows: công cụ/lệnh nhắm vào bộ nhớ LSASS.
+    - field: data.command_line
+      op: contains_any
+      values:
+        - "lsass"
+        - "sekurlsa"
+        - "mimikatz"
+        - "comsvcs.dll, minidump"
+        - "procdump"
+    # Linux: đọc file shadow.
+    - field: data.command_line
+      op: contains_any
+      values:
+        - "/etc/shadow"
+        - "unshadow"
+# HẠN CHẾ ĐÃ BIẾT: phát hiện đáng tin cậy cần telemetry mức kernel về việc mở
+# handle tới lsass.exe (ETW / minifilter). Heuristic theo dòng lệnh ở đây né được
+# bằng cách đổi tên file thực thi. Đã ghi vào mục "Hạn chế" của báo cáo.

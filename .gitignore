@@ -1,0 +1,39 @@
+# Bí mật
+.env
+*.pem
+*.key
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.egg-info/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Dữ liệu & mô hình (nặng, không commit)
+# Toàn bộ ml/data/ — gồm cả dữ liệu tổng hợp do synthetic.py sinh ra (~80MB).
+# Sinh lại trong vài giây, nên commit vào chỉ làm phình lịch sử git vĩnh viễn.
+ml/data/
+data/raw/
+data/processed/
+ml/artifacts/
+*.pcap
+*.pcapng
+*.joblib
+*.pkl
+
+# Sandbox của attack simulation
+sandbox/
+
+# Node / frontend
+node_modules/
+frontend/dist/
+
+# IDE / OS
+.vscode/
+.idea/
+Thumbs.db
+.DS_Store

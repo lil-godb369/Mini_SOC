@@ -1,0 +1,42 @@
+id: T1057-discovery-burst
+name: Cụm lệnh do thám hệ thống / tài khoản / mạng
+description: >
+  Từng lệnh (whoami, ipconfig...) là bình thường; điều bất thường là CHÙM lệnh
+  do thám phát ra liên tiếp từ cùng một tiến trình cha trong vài giây — dấu hiệu
+  kinh điển của thao tác dò tìm sau khi vừa chiếm được quyền truy cập.
+technique: T1057
+technique_name: Process & System Discovery
+tactic: Discovery
+severity: medium
+enabled: true
+event_type: process_create
+detection:
+  type: threshold
+  window_seconds: 15
+  count: 4              # 4+ binary do thám từ cùng tiến trình cha trong 15s
+  group_by: data.ppid
+  logic: any
+  conditions:
+    - field: data.process_name
+      op: in
+      values:
+        # Windows
+        - "whoami.exe"
+        - "systeminfo.exe"
+        - "ipconfig.exe"
+        - "net.exe"
+        - "net1.exe"
+        - "tasklist.exe"
+        - "netstat.exe"
+        - "nltest.exe"
+        - "hostname.exe"
+        - "query.exe"
+        # Linux
+        - "whoami"
+        - "uname"
+        - "id"
+        - "hostname"
+        - "ifconfig"
+        - "ip"
+        - "netstat"
+        - "ps"
