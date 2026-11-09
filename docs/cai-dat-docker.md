@@ -1,5 +1,8 @@
 # Cài đặt Docker — trạng thái và các bước còn lại
 
+> Cài xong rồi? Hướng dẫn **vận hành hàng ngày** (bật/tắt, xem log, debug, dọn ổ đĩa)
+> nằm ở [`HUONG-DAN-DOCKER.md`](HUONG-DAN-DOCKER.md).
+
 ## Đã xong
 
 | Thành phần | Trạng thái |

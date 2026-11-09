@@ -70,6 +70,8 @@ alert came from an ATT&CK rule, a machine-learning model, a honeypot or a scanne
 
 > 📖 **Already set up on this machine?** See [`HUONG-DAN-CHAY.md`](HUONG-DAN-CHAY.md)
 > (Vietnamese) — a step-by-step run and demo guide, every command verified.
+> Need a Docker refresher (image/container/volume, the six core commands, fixing a
+> "port is already allocated" error)? See [`docs/HUONG-DAN-DOCKER.md`](docs/HUONG-DAN-DOCKER.md).
 
 ## Screenshots and a real run
 

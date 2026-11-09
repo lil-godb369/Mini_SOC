@@ -70,6 +70,8 @@ mô hình học máy, honeypot hay bộ quét lỗ hổng.
 
 > 📖 **Đã cài đặt xong trên máy này?** Xem [`HUONG-DAN-CHAY.md`](HUONG-DAN-CHAY.md)
 > — hướng dẫn chạy và trình diễn từng bước, mọi lệnh đều đã kiểm chứng.
+> Cần ôn lại Docker (image/container/volume, 6 lệnh cốt lõi, xử lý lỗi cổng bị chiếm)?
+> Xem [`docs/HUONG-DAN-DOCKER.md`](docs/HUONG-DAN-DOCKER.md).
 
 ## Ảnh chụp & kết quả chạy thật
 
