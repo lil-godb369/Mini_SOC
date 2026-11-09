@@ -1,5 +1,10 @@
 # Mini-SOC
 
+[![CI](https://github.com/lil-godb369/Mini_SOC/actions/workflows/ci.yml/badge.svg)](https://github.com/lil-godb369/Mini_SOC/actions/workflows/ci.yml)
+[![Python 3.9+](https://img.shields.io/badge/python-3.9%2B-blue.svg)](https://www.python.org/downloads/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Tests](https://img.shields.io/badge/tests-152%20passed-brightgreen.svg)](#chạy-test)
+
 **Nền tảng giám sát & phòng thủ an ninh mạng tích hợp AI cho doanh nghiệp vừa và nhỏ**
 
 Một hệ SOC thu nhỏ, nhẹ và chi phí thấp, dùng AI/ML để bù cho việc SMB không có
@@ -171,6 +176,9 @@ Test **không cần Postgres, Redis, hay bộ dữ liệu CIC-IDS2017** — dùn
 tạm, Redis giả, và dữ liệu tổng hợp có cùng hình dạng (kể cả các lỗi) với bộ
 thật. Đây là chủ ý: bộ test nào đòi hạ tầng mới chạy được thì rốt cuộc sẽ không
 ai chạy.
+
+Hiện có **152 test**, chạy khoảng 25 giây trên máy 4 nhân. CI chạy lại toàn bộ
+bộ test này trên mỗi lần push (xem badge ở đầu README).
 
 ## Cấu trúc thư mục
 
