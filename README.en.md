@@ -65,7 +65,7 @@ alert came from an ATT&CK rule, a machine-learning model, a honeypot or a scanne
 | 2 — Network ML | ✅ Done | CIC-IDS2017, RF/XGBoost/IsolationForest, split by day |
 | 2 — Ransomware behaviour | ✅ Done | entropy + write rate + file extensions + folder spread |
 | 3 — AI assistant | ⬜ Week 3 | Claude API + anonymisation layer |
-| Dashboard | ⬜ Week 3 | React + Tailwind, realtime over SSE |
+| Dashboard | ✅ Minimal version | Login, filtering/pagination, evidence, status updates; 15-second polling |
 | 4/5/6 — Scanning, honeypot, phishing | ⬜ Week 4 | integration/demo level |
 
 > 📖 **Already set up on this machine?** See [`HUONG-DAN-CHAY.md`](HUONG-DAN-CHAY.md)

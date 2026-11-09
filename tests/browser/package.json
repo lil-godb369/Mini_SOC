@@ -1,0 +1,6 @@
+{
+  "name": "mini-soc-dashboard-checks",
+  "private": true,
+  "scripts": {"test": "node dashboard.cjs"},
+  "devDependencies": {"playwright": "1.65.0"}
+}

@@ -260,7 +260,7 @@ Hạn chế số 1 là bài học lớn nhất của đồ án: **thiết kế �
 
 | Ưu tiên | Hạng mục |
 |---|---|
-| Cao | Dashboard React realtime qua SSE — hiện chưa có giao diện |
+| Cao | Mở rộng dashboard tối thiểu hiện có (đăng nhập, lọc, bằng chứng, trạng thái; polling 15 giây) sang SSE nếu cần |
 | Cao | Lớp 3: trợ lý AI tóm tắt cảnh báo tiếng Việt, có ẩn danh hoá dữ liệu |
 | Trung bình | Agent mức kernel (ETW trên Windows) để không bỏ sót tiến trình ngắn |
 | Trung bình | Chạy lại mô hình ML trên CIC-IDS2017 gốc và công bố số liệu |

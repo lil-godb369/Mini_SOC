@@ -43,7 +43,7 @@ THU THẬP  →  PHÁT HIỆN (AI)  →  ĐÁNH GIÁ  →  CẢNH BÁO & ĐÀO T
 │  ẩn danh hoá dữ liệu → LLM → tóm tắt tiếng Việt + cách xử lý│
 └──────────────────┬────────────────────────────────────────┘
                    ▼
-     PostgreSQL ──► FastAPI (JWT) ──► Dashboard React
+     PostgreSQL ──► FastAPI (JWT) ──► Dashboard /dashboard/
                           └──► Telegram / Webhook / Email
                    ▲
 ┌─── LỚP 4: QUÉT CHỦ ĐỘNG ──────┐
@@ -65,7 +65,7 @@ mô hình học máy, honeypot hay bộ quét lỗ hổng.
 | 2 — ML mạng | ✅ Xong | CIC-IDS2017, RF/XGBoost/IsolationForest, chia theo ngày |
 | 2 — Hành vi ransomware | ✅ Xong | entropy + tốc độ ghi + đuôi file + độ lan thư mục |
 | 3 — Trợ lý AI | ⬜ Tuần 3 | Claude API + lớp ẩn danh hoá |
-| Dashboard | ⬜ Tuần 3 | React + Tailwind, realtime qua SSE |
+| Dashboard | ✅ Bản tối thiểu | Đăng nhập, lọc/phân trang, bằng chứng, cập nhật trạng thái; tự tải lại 15 giây |
 | 4/5/6 — Quét, honeypot, phishing | ⬜ Tuần 4 | mức tích hợp/demo |
 
 > 📖 **Đã cài đặt xong trên máy này?** Xem [`HUONG-DAN-CHAY.md`](HUONG-DAN-CHAY.md)
@@ -74,6 +74,24 @@ mô hình học máy, honeypot hay bộ quét lỗ hổng.
 > Xem [`docs/HUONG-DAN-DOCKER.md`](docs/HUONG-DAN-DOCKER.md).
 
 ## Ảnh chụp & kết quả chạy thật
+
+### Dashboard cảnh báo
+
+Chạy `docker compose up -d --build api worker`, sau đó mở
+**http://127.0.0.1:8000/dashboard/**. Dashboard được phục vụ từ API, không cần Node
+hay container frontend để sử dụng. Đăng nhập bằng tài khoản đã có trong CSDL;
+ở lần khởi tạo đầu tiên, tài khoản quản trị lấy từ `ADMIN_EMAIL` / `ADMIN_PASSWORD`
+trong `.env`. Sửa `.env` không đổi mật khẩu của tài khoản đã tồn tại.
+
+Lọc theo mức độ, trạng thái, nguồn và tên máy chính xác. Nhấn **Chi tiết** để xem
+bằng chứng và chuyển **Mới → Đang điều tra → Đã xử lý** (có thể mở lại).
+Số liệu đầu trang là toàn hệ thống: event/cảnh báo trong 24 giờ, cảnh báo chưa
+đóng trên toàn bộ thời gian, agent có liên lạc trong 5 phút. Bộ lọc chỉ áp dụng
+cho bảng. Dashboard tự tải lại sau 15 giây khi tab đang mở và không xem chi tiết;
+đây là polling, không phải SSE. Token chỉ giữ trong bộ nhớ; tải lại trang cần
+đăng nhập lại. Không có mật khẩu hoặc token được nhúng vào frontend.
+
+Hướng dẫn kiểm thử và tham chiếu ECC: [docs/DASHBOARD.md](docs/DASHBOARD.md).
 
 Chạy `docker compose up` trên Windows 11, agent theo dõi thư mục `sandbox`, sau đó chạy
 `attack_sim/discovery.py` và `attack_sim/ransomware_sim.py`. Kết quả: **7 cảnh báo**, trong đó

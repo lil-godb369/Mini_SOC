@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark"><title>Mini SOC · Cảnh báo</title>
+  <link rel="icon" href="data:,"><link rel="stylesheet" href="./style.css">
+  <script defer src="./app.js"></script>
+</head>
+<body>
+  <section id="login-view" class="login-shell">
+    <div class="login-intro"><span class="brand-mark">M</span><p class="eyebrow">MINI SOC / SECURITY OPERATIONS</p><h1>Hiểu tín hiệu.<br>Kiểm soát sự cố.</h1><p>Theo dõi cảnh báo, kiểm tra bằng chứng và quản lý quá trình xử lý tại một nơi.</p><span class="intro-foot">THU THẬP → PHÁT HIỆN → ĐIỀU TRA</span></div>
+    <form id="login-form" class="login-card"><p class="eyebrow">KHÔNG GIAN ĐIỀU TRA</p><h2>Đăng nhập Mini SOC</h2><p>Dùng tài khoản quản trị hoặc phân tích viên của bạn.</p><label>Email<input id="email" type="email" autocomplete="username" required placeholder="admin@minisoc.local"></label><label>Mật khẩu<input id="password" type="password" autocomplete="current-password" required></label><p id="login-error" class="error" role="alert"></p><button id="login-button" class="primary" type="submit">Đăng nhập →</button></form>
+  </section>
+  <div id="app-view" hidden>
+    <aside class="sidebar"><a class="brand" href="./"><span class="brand-mark">M</span> MINI SOC</a><p class="eyebrow">WORKSPACE</p><div class="nav-current">◈ <span>Cảnh báo</span></div><a class="nav-link" href="/docs" target="_blank" rel="noopener">↗ <span>Tài liệu API</span></a><div class="sidebar-bottom"><span class="live-dot"></span> Security operations<br><small>Rule engine · Ransomware</small></div></aside>
+    <main>
+      <header><div><p class="eyebrow">SECURITY OPERATIONS / ALERTS</p><h1>Trung tâm cảnh báo<span class="title-dot">.</span></h1><p class="muted">Từ tín hiệu đến hành động. Theo dõi và xử lý cảnh báo của hệ thống.</p></div><div class="account"><span id="user-email"></span><button id="logout" class="subtle">Đăng xuất</button></div></header>
+      <section class="metrics" aria-label="Tổng quan hệ thống"><article><span>EVENT THU THẬP · 24 GIỜ</span><strong id="metric-events">—</strong><small>Telemetry từ các endpoint</small></article><article><span>CẢNH BÁO · 24 GIỜ</span><strong id="metric-alerts">—</strong><small>Tất cả mức độ nghiêm trọng</small></article><article class="accent-metric"><span>CHƯA ĐÓNG · TOÀN BỘ</span><strong id="metric-open">—</strong><small>Mới và đang điều tra</small></article><article><span>AGENT ONLINE</span><strong id="metric-agents">—</strong><small>Liên lạc trong 5 phút gần nhất</small></article></section>
+      <section class="panel"><div class="panel-heading"><div><h2>Hàng đợi cảnh báo</h2><p class="muted">Chọn cảnh báo để xem bằng chứng và cập nhật trạng thái.</p></div><div class="refresh-controls"><label class="checkbox"><input id="auto-refresh" type="checkbox" checked> Tự cập nhật 15s</label><button id="refresh">↻ Làm mới</button></div></div>
+        <form id="filters" class="filters"><label>Mức độ<select name="severity"><option value="">Tất cả mức độ</option><option value="critical">Critical</option><option value="high">High</option><option value="medium">Medium</option><option value="low">Low</option></select></label><label>Trạng thái<select name="status"><option value="">Tất cả trạng thái</option><option value="new">Mới</option><option value="triaged">Đang điều tra</option><option value="closed">Đã xử lý</option></select></label><label>Máy / Host<input name="host" placeholder="Tên máy chính xác" list="host-list"><datalist id="host-list"></datalist></label><label>Nguồn<select name="source"><option value="">Tất cả nguồn</option><option value="rule">Rule engine</option><option value="ransomware">Ransomware</option><option value="ml_network">ML network</option></select></label><button type="submit" class="primary">Áp dụng</button><button id="reset-filters" type="button">Xóa lọc</button></form>
+        <p id="page-error" class="error message" role="alert" hidden></p><p id="notice" class="message" role="status" aria-live="polite"></p>
+        <div class="table-scroll"><table><thead><tr><th>MỨC ĐỘ</th><th>CẢNH BÁO / KỸ THUẬT</th><th>MÁY</th><th>NGUỒN</th><th>TRẠNG THÁI</th><th>THỜI GIAN</th><th><span class="sr-only">Chi tiết</span></th></tr></thead><tbody id="alert-rows"></tbody></table></div>
+        <div id="empty" class="empty" hidden><span>◎</span><h3>Không có cảnh báo phù hợp</h3><p>Thử đổi bộ lọc hoặc đợi agent gửi thêm dữ liệu.</p></div>
+        <footer class="pagination"><span id="page-info">Đang tải…</span><div><button id="previous">← Trước</button><button id="next">Sau →</button></div></footer>
+      </section><p id="updated" class="updated"></p>
+    </main>
+  </div>
+  <dialog id="detail"><div class="detail-header"><p class="eyebrow">ĐIỀU TRA CẢNH BÁO <span id="detail-id"></span></p><button id="close-detail" aria-label="Đóng chi tiết">✕</button></div><h2 id="detail-title"></h2><div id="detail-meta" class="detail-meta"></div><form id="status-form" class="status-form"><label>Trạng thái xử lý<select id="detail-status"><option value="new">Mới</option><option value="triaged">Đang điều tra</option><option value="closed">Đã xử lý</option></select></label><button id="save-status" class="primary" type="submit">Lưu trạng thái</button></form><p id="detail-message" role="status" aria-live="polite"></p><h3>Bằng chứng phát hiện</h3><p class="muted">Dữ liệu do bộ phát hiện ghi lại tại thời điểm cảnh báo.</p><pre id="evidence"></pre></dialog>
+</body>
+</html>
