@@ -7,6 +7,8 @@
 
 **Nền tảng giám sát & phòng thủ an ninh mạng tích hợp AI cho doanh nghiệp vừa và nhỏ**
 
+> 🇬🇧 English version: [README.en.md](README.en.md)
+
 Một hệ SOC thu nhỏ, nhẹ và chi phí thấp, dùng AI/ML để bù cho việc SMB không có
 chuyên gia an ninh mạng. Gom trọn luồng:
 
@@ -68,6 +70,23 @@ mô hình học máy, honeypot hay bộ quét lỗ hổng.
 
 > 📖 **Đã cài đặt xong trên máy này?** Xem [`HUONG-DAN-CHAY.md`](HUONG-DAN-CHAY.md)
 > — hướng dẫn chạy và trình diễn từng bước, mọi lệnh đều đã kiểm chứng.
+
+## Ảnh chụp & kết quả chạy thật
+
+Chạy `docker compose up` trên Windows 11, agent theo dõi thư mục `sandbox`, sau đó chạy
+`attack_sim/discovery.py` và `attack_sim/ransomware_sim.py`. Kết quả: **7 cảnh báo**, trong đó
+1 `critical` (T1486) và 1 `medium` (T1486 — điểm hành vi 0.41). Rule T1057 không kích hoạt,
+đúng như đã ghi ở mục [Hạn chế đã biết](#hạn-chế-đã-biết) số 1.
+
+**API tự sinh (Swagger UI)** — `http://127.0.0.1:8000/docs`
+
+![Swagger UI](docs/screenshots/swagger-api.png)
+
+**Cảnh báo thật trả về từ `/api/v1/alerts`** (đã rút gọn và che thông tin nhạy cảm). Chú ý
+`evidence.signals`: từng tín hiệu (entropy, phần mở rộng, độ lan thư mục, tốc độ ghi) đóng góp
+bao nhiêu vào điểm cuối, nên người phân tích thấy được **vì sao** cảnh báo bật.
+
+![Alert JSON](docs/screenshots/alerts-api.png)
 
 ## Yêu cầu hệ thống
 
