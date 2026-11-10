@@ -29,10 +29,12 @@ def ingest(payload: IngestRequest, agent: Agent = Depends(get_current_agent)) ->
     now = datetime.now(timezone.utc)
     accepted = []
     reasons = []
+    rejected_indices = []
 
-    for event in payload.events:
+    for index, event in enumerate(payload.events):
         if event.event_type not in EVENT_TYPES:
             reasons.append(f"loại event không hỗ trợ: {event.event_type}")
+            rejected_indices.append(index)
             continue
 
         ts = event.timestamp or now
@@ -40,6 +42,7 @@ def ingest(payload: IngestRequest, agent: Agent = Depends(get_current_agent)) ->
             ts = ts.replace(tzinfo=timezone.utc)
         if abs((now - ts).total_seconds()) > MAX_CLOCK_SKEW_SECONDS:
             reasons.append(f"timestamp lệch quá xa: {ts.isoformat()}")
+            rejected_indices.append(index)
             continue
 
         accepted.append(
@@ -52,6 +55,7 @@ def ingest(payload: IngestRequest, agent: Agent = Depends(get_current_agent)) ->
                 "event_type": event.event_type,
                 "data": event.data,
                 "agent_id": agent.id,
+                "event_uid": str(event.event_uid) if event.event_uid else None,
             }
         )
 
@@ -63,4 +67,5 @@ def ingest(payload: IngestRequest, agent: Agent = Depends(get_current_agent)) ->
         logger.warning("Agent #%d: từ chối %d/%d event", agent.id, rejected, len(payload.events))
 
     # Chỉ trả về vài lý do đầu tiên để phản hồi không phình to khi lô lỗi hàng loạt.
-    return IngestResponse(accepted=len(accepted), rejected=rejected, reasons=reasons[:5])
+    return IngestResponse(accepted=len(accepted), rejected=rejected, reasons=reasons[:5],
+                          rejected_indices=rejected_indices)

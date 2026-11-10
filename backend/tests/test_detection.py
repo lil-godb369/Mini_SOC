@@ -131,9 +131,9 @@ class TestNormalizer:
 class TestRuleLoading:
     def test_nap_du_nam_rule_attack(self):
         rules = load_rules()
-        assert len(rules) == 5
+        assert len(rules) == 7
         techniques = {r.technique for r in rules}
-        assert techniques == {"T1059.001", "T1547.001", "T1057", "T1003", "T1486"}
+        assert techniques == {"T1059.001", "T1547.001", "T1053.005", "T1053.003", "T1057", "T1003", "T1486"}
 
     def test_moi_rule_deu_co_anh_xa_attack(self):
         for rule in load_rules():
@@ -168,15 +168,14 @@ class TestSingleEventRules:
         )
         assert "T1547.001" in {h.technique for h in engine.evaluate(event)}
 
-    def test_scheduled_task_kich_hoat_t1547(self, engine):
+    def test_scheduled_task_kich_hoat_t1053_005(self, engine):
         event = make_event("process_create", process_name="schtasks.exe",
                            command_line="schtasks /create /tn Backdoor /tr calc.exe /sc onlogon")
-        assert "T1547.001" in {h.technique for h in engine.evaluate(event)}
+        assert "T1053.005" in {h.technique for h in engine.evaluate(event)}
 
-    def test_cron_linux_kich_hoat_t1547(self, engine):
-        event = make_event("process_create", process_name="bash",
-                           command_line="bash -c 'crontab -l'")
-        assert "T1547.001" in {h.technique for h in engine.evaluate(event)}
+    def test_cron_linux_kich_hoat_t1053_003(self, engine):
+        event = make_event("process_create", process_name="crontab", command_line="crontab /tmp/demo.cron")
+        assert "T1053.003" in {h.technique for h in engine.evaluate(event)}
 
     def test_dump_lsass_kich_hoat_t1003_critical(self, engine):
         event = make_event("process_create", process_name="procdump.exe",
@@ -203,7 +202,7 @@ class TestCorrelator:
     def correlator(self):
         return Correlator(load_rules())
 
-    def _recon(self, ppid: int = 1000, name: str = "whoami.exe") -> dict:
+    def _recon(self, ppid: int = 1000, name: str = "tasklist.exe") -> dict:
         return make_event("process_create", process_name=name, ppid=ppid)
 
     def test_duoi_nguong_thi_khong_canh_bao(self, correlator):
@@ -287,14 +286,13 @@ class TestPipeline:
                                      command_line="notepad.exe ghi_chu.txt"))
         assert pipeline.process(event, now=1.0) == []
 
-    def test_mot_event_co_the_kich_hoat_nhieu_rule(self, pipeline):
-        # Dòng lệnh này vừa khớp PowerShell đáng ngờ (-nop) vừa khớp persistence (schtasks /create).
+    def test_shell_text_does_not_claim_child_task_was_created(self, pipeline):
         event = normalize(make_event(
             "process_create", process_name="powershell.exe",
             command_line="powershell -nop -c \"schtasks /create /tn X /tr calc.exe\"",
         ))
         techniques = {d.technique for d in pipeline.process(event, now=1.0)}
-        assert {"T1059.001", "T1547.001"} <= techniques
+        assert techniques == set()
 
     def test_bang_chung_cua_rule_nguong_co_so_lieu_cua_so(self, pipeline):
         drafts = []

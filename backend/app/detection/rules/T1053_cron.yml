@@ -1,0 +1,19 @@
+id: T1053.003-crontab-install
+name: Cài crontab từ file hoặc stdin
+description: Detect install, not crontab listing; shell redirects and GUI edits are not covered.
+technique: T1053.003
+technique_name: Cron
+tactic: Persistence
+severity: high
+enabled: true
+event_type: process_create
+detection:
+  type: single
+  logic: all
+  conditions:
+    - field: data.process_name
+      op: equals
+      values: [crontab]
+    - field: data.command_line
+      op: regex
+      values: ['(?:^|[\s/])crontab\s+(?:-(?=\s|$)|[^\s-]\S*)']

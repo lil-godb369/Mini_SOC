@@ -5,7 +5,7 @@ from collections import Counter
 from datetime import datetime, timedelta, timezone
 from typing import List
 
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
@@ -20,6 +20,17 @@ from ..schemas import (
 )
 
 router = APIRouter(prefix="/stats", tags=["stats"])
+
+
+@router.get("/worker")
+def worker_status(_=Depends(get_current_user)) -> dict:
+    """Authenticated observations; API health alone does not prove detection works."""
+    from ..monitoring import worker_overview
+
+    try:
+        return worker_overview()
+    except Exception:
+        raise HTTPException(status_code=503, detail="Worker observations unavailable") from None
 
 SEVERITY_ORDER = ["critical", "high", "medium", "low"]
 

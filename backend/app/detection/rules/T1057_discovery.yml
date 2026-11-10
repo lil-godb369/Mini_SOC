@@ -5,7 +5,7 @@ description: >
   do thám phát ra liên tiếp từ cùng một tiến trình cha trong vài giây — dấu hiệu
   kinh điển của thao tác dò tìm sau khi vừa chiếm được quyền truy cập.
 technique: T1057
-technique_name: Process & System Discovery
+technique_name: Process Discovery
 tactic: Discovery
 severity: medium
 enabled: true
@@ -15,6 +15,12 @@ detection:
   window_seconds: 15
   count: 4              # 4+ binary do thám từ cùng tiến trình cha trong 15s
   group_by: data.ppid
+  # Only attribute T1057 when the triggering event enumerates processes.
+  trigger:
+    conditions:
+      - field: data.process_name
+        op: in
+        values: [tasklist.exe, tasklist, ps]
   logic: any
   conditions:
     - field: data.process_name

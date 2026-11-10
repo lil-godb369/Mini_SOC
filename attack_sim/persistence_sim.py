@@ -1,8 +1,8 @@
 """Mô phỏng T1547.001 — Duy trì truy cập qua tự khởi động (mặc định CHẠY KHÔ).
 
-Mặc định, kịch bản chỉ IN RA lệnh tạo mục tự khởi động. Điều đó vẫn đủ để rule
-kích hoạt, vì agent nhìn thấy tiến trình `reg.exe` được sinh ra với dòng lệnh
-khớp mẫu — mà không thay đổi Run key hay crontab của bạn.
+Mặc định chỉ IN RA lệnh. Dry-run không chứng minh có thay đổi hệ thống và
+không được kỳ vọng kích hoạt rule persistence. Fixture telemetry kiểm tra
+rule không cần thực thi lệnh thật; xem docs/DETECTION.md.
 
     python persistence_sim.py               # an toàn, chỉ in
     python persistence_sim.py --for-real     # ghi thật (có kèm lệnh gỡ)
@@ -51,16 +51,12 @@ def main() -> int:
             print(f"[sim] tạo thất bại: {result.stderr.decode(errors='replace')[:200]}")
             return 1
     else:
-        # Ngay cả lần chạy khô cũng sinh ra reg.exe với dòng lệnh khớp rule
-        # (nhờ `reg add /?`), nên phát hiện vẫn kích hoạt mà không đổi gì cả.
-        if is_windows:
-            subprocess.run(["reg", "add", "/?"], capture_output=True)
-        else:
-            subprocess.run(["bash", "-c", "echo 'crontab -l  # demo, khong ghi gi'"],
-                           capture_output=True)
         print("[sim] CHẠY KHÔ — không có gì bị thay đổi. Dùng --for-real để ghi thật.")
 
-    print("[sim] Mong đợi: cảnh báo Persistence (high).")
+    if args.for_real and is_windows:
+        print("[sim] Có thể phát cảnh báo Run key nếu agent thu được tiến trình reg.exe.")
+    else:
+        print("[sim] Không kỳ vọng cảnh báo Run key: dry-run hoặc hành vi Linux ngoài rule hiện có.")
     return 0
 
 

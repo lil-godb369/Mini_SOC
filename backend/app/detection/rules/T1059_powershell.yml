@@ -12,20 +12,15 @@ enabled: true
 event_type: process_create
 detection:
   type: single
-  logic: any
+  logic: all
   conditions:
+    - field: data.process_name
+      op: in
+      values: [powershell.exe, pwsh.exe, powershell, pwsh]
     - field: data.command_line
-      op: contains_any
+      op: regex
       values:
-        - "-enc"
-        - "-encodedcommand"
-        - "-nop"
-        - "-noprofile"
-        - "-w hidden"
-        - "-windowstyle hidden"
-        - "downloadstring"
-        - "downloadfile"
-        - "iex "
-        - "invoke-expression"
-        - "frombase64string"
-        - "bypass"
+        - '(?:^|\s)-(?:enc|encodedcommand)\s+\S+'
+        - '\b(?:downloadstring|downloadfile|invoke-expression|frombase64string)\b'
+        - '\biex\s+'
+        - '(?:^|\s)-(?:w|windowstyle)\s+hidden(?:\s|$)'

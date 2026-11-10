@@ -80,11 +80,11 @@ class DetectionPipeline:
             "bật" if self.ml_network else "tắt",
         )
 
-    def process(self, event: dict, now: float) -> List[AlertDraft]:
+    def process(self, event: dict, now: float, stateful: bool = True) -> List[AlertDraft]:
         """Chạy một event qua mọi bộ phát hiện đang bật.
 
-        `now` là giây đơn điệu tăng do worker cấp (đồng hồ phía server, nên
-        không bị lệch giờ của máy agent làm sai cửa sổ tương quan).
+        Worker supplies event-time epoch seconds. Late events may still run
+        single-event rules and ML, with stateful detectors explicitly disabled.
         """
         drafts: List[AlertDraft] = []
         host = str(event.get("host", ""))
@@ -109,7 +109,7 @@ class DetectionPipeline:
             )
 
         # --- Rule ngưỡng / hành vi ---
-        for hit in (self.correlator.evaluate(event, now=now) if self.enable_rules else []):
+        for hit in (self.correlator.evaluate(event, now=now) if self.enable_rules and stateful else []):
             evidence = dict(base_evidence)
             evidence.update(hit.as_evidence())
             drafts.append(
@@ -128,7 +128,7 @@ class DetectionPipeline:
             )
 
         # --- Phân tích hành vi ransomware (entropy + tốc độ + đuôi + độ lan) ---
-        if self.ransomware is not None:
+        if self.ransomware is not None and stateful:
             drafts.extend(self.ransomware.observe(event, now=now))
 
         # --- Mô hình ML trên luồng mạng ---

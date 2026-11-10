@@ -1,5 +1,7 @@
 # Mini-SOC
 
+Current rule scope and evidence: [docs/DETECTION.md](docs/DETECTION.md). File-burst is now Medium; historical demo results below retain their original severity.
+
 [![CI](https://github.com/lil-godb369/Mini_SOC/actions/workflows/ci.yml/badge.svg)](https://github.com/lil-godb369/Mini_SOC/actions/workflows/ci.yml)
 [![Python 3.9+](https://img.shields.io/badge/python-3.9%2B-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
@@ -61,7 +63,7 @@ alert came from an ATT&CK rule, a machine-learning model, a honeypot or a scanne
 | Layer | Status | Notes |
 |---|---|---|
 | 1 — Collection | ✅ Done | Python agent (process, file + entropy, network) |
-| 2 — ATT&CK rule engine | ✅ Done | 5 rules, sliding-window correlation |
+| 2 — ATT&CK rule engine | ✅ Done | 7 rules, sliding-window correlation |
 | 2 — Network ML | ✅ Done | CIC-IDS2017, RF/XGBoost/IsolationForest, split by day |
 | 2 — Ransomware behaviour | ✅ Done | entropy + write rate + file extensions + folder spread |
 | 3 — AI assistant | ⬜ Week 3 | Claude API + anonymisation layer |

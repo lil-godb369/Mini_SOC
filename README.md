@@ -1,5 +1,11 @@
 # Mini-SOC
 
+Kế hoạch hoàn thiện và tiêu chí nghiệm thu: [docs/KE-HOACH-HOAN-THIEN.md](docs/KE-HOACH-HOAN-THIEN.md).
+Hướng dẫn heartbeat, đăng ký lại agent và quan sát worker:
+[docs/OPERATIONS.md](docs/OPERATIONS.md).
+Phạm vi 7 rule hiện tại, severity và bằng chứng kiểm thử:
+[docs/DETECTION.md](docs/DETECTION.md). Kết quả demo lịch sử bên dưới phản ánh rule ở thời điểm chạy.
+
 [![CI](https://github.com/lil-godb369/Mini_SOC/actions/workflows/ci.yml/badge.svg)](https://github.com/lil-godb369/Mini_SOC/actions/workflows/ci.yml)
 [![Python 3.9+](https://img.shields.io/badge/python-3.9%2B-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)

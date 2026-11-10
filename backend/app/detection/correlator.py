@@ -50,13 +50,13 @@ class CorrelationHit:
 class Correlator:
     def __init__(self, rules: List[Rule]):
         self.threshold_rules = [r for r in rules if r.type == "threshold"]
-        # state[(rule_id, group_value)] -> deque các mốc thời gian
-        self._state: Dict[Tuple[str, str], Deque[float]] = defaultdict(deque)
+        # Host is always part of the identity: PIDs are local to each machine.
+        self._state: Dict[Tuple[str, str, str], Deque[float]] = defaultdict(deque)
         # Chống cảnh báo lặp lại ở mỗi event khi cửa sổ đang "nóng".
-        self._cooldown: Dict[Tuple[str, str], float] = {}
+        self._cooldown: Dict[Tuple[str, str, str], float] = {}
 
     def evaluate(self, event: dict, now: float) -> List[CorrelationHit]:
-        """`now` là giây đơn điệu tăng — do bên gọi cấp (thường là thời gian server)."""
+        """`now` must not decrease within a host; worker supplies event-time seconds."""
         hits: List[CorrelationHit] = []
         etype = event.get("event_type")
 
@@ -70,15 +70,19 @@ class Correlator:
             window = float(det.get("window_seconds", 10))
             count = int(det.get("count", 5))
             group_field = det.get("group_by", "host")
-            group_val = str(get_field(event, group_field))
+            raw_group = get_field(event, group_field)
+            host = event.get("host")
+            if raw_group is None or raw_group == "" or not host:
+                continue
+            group_val = str(raw_group)
 
-            key = (rule.id, group_val)
+            key = (rule.id, str(host), group_val)
             bucket = self._state[key]
             bucket.append(now)
             while bucket and now - bucket[0] > window:
                 bucket.popleft()
 
-            if len(bucket) >= count:
+            if len(bucket) >= count and matching.matches(event, det.get("trigger") or {}):
                 last_alert = self._cooldown.get(key, float("-inf"))
                 if now - last_alert >= window:  # mỗi cửa sổ chỉ một cảnh báo
                     self._cooldown[key] = now

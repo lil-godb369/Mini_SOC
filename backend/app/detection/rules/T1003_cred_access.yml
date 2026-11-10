@@ -12,23 +12,21 @@ enabled: true
 event_type: process_create
 detection:
   type: single
-  logic: any
+  logic: all
   conditions:
-    # Windows: công cụ/lệnh nhắm vào bộ nhớ LSASS.
+    - field: data.process_name
+      op: in
+      values: [procdump.exe, procdump64.exe, procdump, procdump64, rundll32.exe, rundll32, mimikatz.exe, mimikatz, cat, head, tail, less, more, unshadow]
+    # Require an actual dumping/credential-tool pattern, not a lone tool name.
     - field: data.command_line
-      op: contains_any
+      op: regex
       values:
-        - "lsass"
-        - "sekurlsa"
-        - "mimikatz"
-        - "comsvcs.dll, minidump"
-        - "procdump"
-    # Linux: đọc file shadow.
-    - field: data.command_line
-      op: contains_any
-      values:
-        - "/etc/shadow"
-        - "unshadow"
+        - '\bprocdump(?:64)?(?:\.exe)?\b.+(?:-ma|-mm|-mp)\b.+\blsass(?:\.exe)?\b'
+        - '\brundll32(?:\.exe)?\b.+\bcomsvcs\.dll\s*,?\s*minidump\b'
+        - '\bmimikatz(?:\.exe)?\b.+\b(?:sekurlsa|lsadump)::'
+        # Linux readers/install tools; process identity is required above.
+        - '(?:^|[\s/])(?:cat|head|tail|less|more)\s+(?:-[^\s]+\s+)*["\x27]?/etc/shadow(?:["\x27\s]|$)'
+        - '(?:^|[\s/])unshadow\s+\S+\s+\S+'
 # HẠN CHẾ ĐÃ BIẾT: phát hiện đáng tin cậy cần telemetry mức kernel về việc mở
 # handle tới lsass.exe (ETW / minifilter). Heuristic theo dòng lệnh ở đây né được
 # bằng cách đổi tên file thực thi. Đã ghi vào mục "Hạn chế" của báo cáo.

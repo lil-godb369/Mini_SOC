@@ -139,7 +139,7 @@ class TestIngest:
             headers={"X-API-Key": api_key},
         )
         assert resp.status_code == 200
-        assert resp.json() == {"accepted": 1, "rejected": 0, "reasons": []}
+        assert resp.json() == {"accepted": 1, "rejected": 0, "reasons": [], "rejected_indices": []}
 
         # Event phải nằm trong stream, không nằm thẳng trong CSDL.
         queued = fake_redis.streams["minisoc:events"]

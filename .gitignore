@@ -11,6 +11,7 @@ venv/
 *.egg-info/
 .pytest_cache/
 .coverage
+*.spool.sqlite3*
 htmlcov/
 
 # Dữ liệu & mô hình (nặng, không commit)

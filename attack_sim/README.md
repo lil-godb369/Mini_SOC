@@ -1,5 +1,9 @@
 # Mô phỏng tấn công (lớp đỏ)
 
+Hành vi rule đã được tinh chỉnh: xem [docs/DETECTION.md](../docs/DETECTION.md).
+Dry-run persistence không kỳ vọng alert; file-burst hiện là Medium, chưa xác nhận
+mã hóa. Bảng kỳ vọng dưới đây đã cập nhật; chưa đảm bảo collector polling bắt đủ event.
+
 > ⚠️ **Đọc trước khi chạy.** Các kịch bản này tồn tại để CHỨNG MINH hệ thống phát
 > hiện được, không phải để gây hại. Tất cả đều vô hại và có thể hoàn tác. Chỉ
 > chạy trên máy của chính bạn hoặc máy ảo trong lab.
@@ -33,15 +37,15 @@ python ransomware_sim.py --restore     # trả file về nguyên trạng
 ```
 
 Xem cảnh báo hiện lên trong log của worker, hoặc gọi
-`GET /api/v1/alerts` (Tuần 3 sẽ có dashboard).
+`GET /api/v1/alerts` hoặc dashboard tại `/dashboard/`.
 
 ## Cảnh báo mong đợi
 
 | Chạy | Cảnh báo mong đợi |
 |---|---|
 | `discovery.py` | `T1057-discovery-burst` (medium) và thường kèm `T1059.001-suspicious-powershell` (high) |
-| `persistence_sim.py` | `T1547.001-autostart-persistence` (high) |
-| `ransomware_sim.py` | `T1486-mass-file-encryption` (critical) |
+| `persistence_sim.py` | Dry-run: không kỳ vọng alert; chạy thật trên Windows cần collector bắt được reg add |
+| `ransomware_sim.py` | `T1486-mass-file-encryption` (medium); heuristic có điểm/mức riêng nếu được bật |
 
 Nếu cảnh báo **không** xuất hiện, xem mục "Khắc phục sự cố" trong README gốc —
 thường là do agent chưa được trỏ đúng vào thư mục sandbox.

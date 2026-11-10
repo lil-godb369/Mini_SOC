@@ -95,7 +95,7 @@ def test_powershell_che_giau_sinh_canh_bao_high(client, fake_redis, auth_headers
 def test_cum_do_tham_sinh_dung_mot_canh_bao(client, fake_redis, auth_headers, agent_key):
     pipeline = DetectionPipeline()
 
-    recon = ["whoami.exe", "hostname.exe", "ipconfig.exe", "net.exe", "systeminfo.exe"]
+    recon = ["whoami.exe", "hostname.exe", "ipconfig.exe", "tasklist.exe", "systeminfo.exe"]
     send(client, agent_key, [
         {
             "host": "MAY-NAN-NHAN",
@@ -122,7 +122,7 @@ def test_cum_do_tham_sinh_dung_mot_canh_bao(client, fake_redis, auth_headers, ag
 # ---------------------------------------------------------------------------
 # Kịch bản 3 — ransomware (T1486), cụm sửa file
 # ---------------------------------------------------------------------------
-def test_cum_ma_hoa_file_sinh_canh_bao_critical(client, fake_redis, auth_headers, agent_key):
+def test_cum_sua_file_sinh_canh_bao_medium(client, fake_redis, auth_headers, agent_key):
     pipeline = DetectionPipeline()
 
     send(client, agent_key, [
@@ -138,7 +138,7 @@ def test_cum_ma_hoa_file_sinh_canh_bao_critical(client, fake_redis, auth_headers
 
     drain_queue(fake_redis, pipeline)
 
-    body = client.get("/api/v1/alerts?severity=critical", headers=auth_headers).json()
+    body = client.get("/api/v1/alerts?severity=medium", headers=auth_headers).json()
     assert body["total"] == 1
     assert body["items"][0]["technique"] == "T1486"
 

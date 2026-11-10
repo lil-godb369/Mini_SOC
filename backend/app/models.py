@@ -111,6 +111,26 @@ class Event(Base):
     )
 
 
+class ProcessedMessage(Base):
+    """Idempotency ledger, committed atomically with its event and alerts.
+
+    A new table avoids altering existing event columns on installed databases.
+    Do not prune independently of the retry horizon.
+    """
+    __tablename__ = "processed_messages"
+
+    key: Mapped[str] = mapped_column(String(64), primary_key=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+
+
+class DetectionState(Base):
+    """Per-host checkpoint committed together with events and idempotency receipts."""
+    __tablename__ = "detection_states"
+
+    host: Mapped[str] = mapped_column(String(255), primary_key=True)
+    payload: Mapped[dict] = mapped_column(JSONType, default=dict)
+
+
 class Alert(Base):
     """Cảnh báo — đầu ra chung của mọi lớp phát hiện."""
 

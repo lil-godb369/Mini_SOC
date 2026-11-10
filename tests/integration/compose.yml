@@ -1,0 +1,43 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: reliability
+      POSTGRES_PASSWORD: isolated-test-only
+      POSTGRES_DB: reliability
+    tmpfs:
+      - /var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U reliability -d reliability"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+  redis:
+    image: redis:7-alpine
+    tmpfs:
+      - /data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+  verify:
+    build:
+      context: ../../backend
+    environment:
+      DATABASE_URL: postgresql+psycopg://reliability:isolated-test-only@postgres:5432/reliability
+      REDIS_URL: redis://redis:6379/0
+      JWT_SECRET: isolated-reliability-test-signing-key
+      ADMIN_EMAIL: admin@reliability.local
+      ADMIN_PASSWORD: isolated-test-only
+      AGENT_ENROLL_TOKEN: isolated-test-enrollment
+      ENABLE_RANSOMWARE_BEHAVIOR: "true"
+      ENABLE_ML_NETWORK: "false"
+    volumes:
+      - ./check_reliability.py:/checks/check_reliability.py:ro
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    command: ["python", "/checks/check_reliability.py"]

@@ -8,6 +8,7 @@ from __future__ import annotations
 
 from datetime import datetime
 from typing import Any, Dict, List, Optional
+from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -88,6 +89,7 @@ class EventIn(BaseModel):
     """Đúng một event theo schema chung (agent/event_schema.json)."""
 
     timestamp: Optional[datetime] = None  # thiếu thì server tự điền
+    event_uid: Optional[UUID] = None
     host: str = Field(min_length=1, max_length=255)
     platform: str = Field(default="unknown", max_length=32)
     event_type: str = Field(min_length=1, max_length=64)
@@ -104,6 +106,7 @@ class IngestResponse(BaseModel):
     accepted: int
     rejected: int
     reasons: List[str] = Field(default_factory=list)
+    rejected_indices: List[int] = Field(default_factory=list)
 
 
 class EventOut(BaseModel):

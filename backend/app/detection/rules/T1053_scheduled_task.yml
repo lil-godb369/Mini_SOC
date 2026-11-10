@@ -1,0 +1,22 @@
+id: T1053.005-scheduled-task-create
+name: Tạo scheduled task qua schtasks
+description: Command-line heuristic for task creation, not proof of malicious persistence.
+technique: T1053.005
+technique_name: Scheduled Task
+tactic: Persistence
+severity: high
+enabled: true
+event_type: process_create
+detection:
+  type: single
+  logic: all
+  conditions:
+    - field: data.process_name
+      op: in
+      values: [schtasks.exe, schtasks]
+    - field: data.command_line
+      op: regex
+      values: ['(?:^|\s)/create(?:\s|$)']
+    - field: data.command_line
+      op: regex
+      values: ['(?:^|\s)/tr\s+\S+']

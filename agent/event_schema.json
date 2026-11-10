@@ -5,6 +5,11 @@
   "type": "object",
   "required": ["timestamp", "host", "platform", "event_type", "data"],
   "properties": {
+    "event_uid": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Stable identity assigned by the sender before durable enqueue; preserved on retry. Optional for legacy agents."
+    },
     "timestamp": {
       "type": "string",
       "format": "date-time",

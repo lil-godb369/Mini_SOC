@@ -1,13 +1,13 @@
 id: T1486-mass-file-encryption
-name: Nghi vấn ransomware (sửa đổi file hàng loạt)
+name: Sửa file hàng loạt (chưa xác nhận mã hóa)
 description: >
   Ransomware để lại một dấu vết rất đặc trưng ở tầng file: rất nhiều file bị ghi
-  đè trong thời gian cực ngắn. Rule này bắt chính cụm đó. Lớp 2 (Tuần 2) sẽ bổ
-  sung phân tích entropy và tốc độ I/O để giảm cảnh báo giả.
+  đè trong thời gian cực ngắn. Rule chỉ bắt cụm sửa file, không chứng minh
+  mã hóa; bộ hành vi entropy/đuôi/tốc độ/độ lan đánh giá riêng.
 technique: T1486
 technique_name: Data Encrypted for Impact
 tactic: Impact
-severity: critical
+severity: medium
 enabled: true
 event_type: file_modify
 detection:

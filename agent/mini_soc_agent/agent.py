@@ -10,6 +10,7 @@
 from __future__ import annotations
 
 import argparse
+import json
 import logging
 import os
 import signal
@@ -53,6 +54,10 @@ def build_parser() -> argparse.ArgumentParser:
                         help="Token đăng ký (chỉ cần ở lần chạy đầu tiên)")
     parser.add_argument("--state-file", default=default_state_path(),
                         help="Nơi lưu API key sau khi đăng ký")
+    parser.add_argument("--reenroll", action="store_true",
+                        help="Đăng ký lại có chủ đích; cần token enroll, không tự thu hồi key cũ")
+    parser.add_argument("--spool-status", action="store_true",
+                        help="In số lượng event lưu trên đĩa rồi thoát; không gửi mạng")
     parser.add_argument("--watch-dir", default=None,
                         help="Thư mục cần giám sát thay đổi file (demo T1486)")
     parser.add_argument("--poll-interval", type=float, default=0.5,
@@ -68,6 +73,15 @@ def build_parser() -> argparse.ArgumentParser:
 
 def main(argv: List[str] = None) -> int:
     args = build_parser().parse_args(argv)
+    if args.poll_interval <= 0:
+        logger.error("--poll-interval must be positive")
+        return 2
+    if args.reenroll and not args.enroll_token:
+        logger.error("--reenroll requires an enrollment token")
+        return 2
+    if args.reenroll and args.spool_status:
+        logger.error("--reenroll and --spool-status cannot be used together")
+        return 2
 
     signal.signal(signal.SIGINT, _handle_signal)
     signal.signal(signal.SIGTERM, _handle_signal)
@@ -81,7 +95,15 @@ def main(argv: List[str] = None) -> int:
     )
 
     # Đăng ký một lần duy nhất; những lần chạy sau dùng lại API key đã lưu.
-    if not sender.load_state():
+    try:
+        has_state = False if args.reenroll else sender.load_state()
+    except RuntimeError as exc:
+        logger.error("%s", exc)
+        return 2
+    if not has_state:
+        if args.spool_status:
+            logger.error("Cannot inspect spool scope without a valid agent state")
+            return 2
         if not args.enroll_token:
             logger.error(
                 "Chưa đăng ký và không có --enroll-token. "
@@ -96,7 +118,19 @@ def main(argv: List[str] = None) -> int:
     else:
         logger.info("Dùng lại API key đã lưu (agent_id=%s)", sender.agent_id)
 
-    sender.start()
+    if args.spool_status:
+        try:
+            print(json.dumps(sender.spool.stats(sender.scope)))
+            return 0
+        except Exception:
+            logger.error("Cannot read spool status")
+            return 5
+
+    try:
+        sender.start()
+    except Exception:
+        logger.error("Cannot initialize sender storage")
+        return 5
 
     threads: List[threading.Thread] = []
     stoppables: List[object] = []
@@ -122,7 +156,8 @@ def main(argv: List[str] = None) -> int:
 
     logger.info("Agent đang chạy. Nhấn Ctrl+C để dừng.")
     try:
-        while not _shutdown.is_set():
+        while (not _shutdown.is_set() and not sender.auth_failed.is_set()
+               and not sender.storage_failed.is_set()):
             time.sleep(0.5)
     except KeyboardInterrupt:
         pass
@@ -135,7 +170,7 @@ def main(argv: List[str] = None) -> int:
     # Dừng sender sau cùng để những event vừa thu vẫn kịp gửi đi.
     sender.stop()
     logger.info("Agent đã dừng.")
-    return 0
+    return 4 if sender.auth_failed.is_set() else (5 if sender.storage_failed.is_set() else 0)
 
 
 if __name__ == "__main__":

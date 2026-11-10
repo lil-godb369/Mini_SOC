@@ -10,13 +10,19 @@ from sqlalchemy.orm import Session
 
 from ..config import settings
 from ..db import get_db
-from ..deps import get_current_user, require_admin
+from ..deps import get_current_agent, get_current_user, require_admin
 from ..models import Agent
 from ..schemas import AgentEnrollRequest, AgentEnrollResponse, AgentOut
 from ..security import constant_time_equals, generate_api_key, hash_api_key
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/agents", tags=["agents"])
+
+
+@router.post("/heartbeat", response_model=AgentOut)
+def heartbeat(agent: Agent = Depends(get_current_agent)) -> Agent:
+    """Update last_seen even when the endpoint has no telemetry to send."""
+    return agent
 
 
 @router.post("/enroll", response_model=AgentEnrollResponse, status_code=status.HTTP_201_CREATED)
